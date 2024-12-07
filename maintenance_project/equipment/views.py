@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404
+from django.shortcuts import render
 
 from .models import Equipment
 
@@ -20,10 +21,11 @@ def equipment_type(request, type):
 
 
 def equipment_schedule(request, equipment_id):
-    """
-    Отображает график обслуживания для конкретного оборудования.
-    """
-    equipment = get_object_or_404(Equipment, id=equipment_id)
+    try:
+        equipment = Equipment.objects.get(id=equipment_id)
+    except Equipment.DoesNotExist:
+        raise Http404(f"Оборудование с id {equipment_id} не найдено")
+    
     schedule = equipment.maintenance_schedules.all().order_by('date')
     return render(request, 
                   'equipment/schedule.html', 
