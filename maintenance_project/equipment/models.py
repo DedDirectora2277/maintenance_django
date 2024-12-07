@@ -32,10 +32,8 @@ class MaintenanceStandard(models.Model):
                     )
 
     def save(self, *args, **kwargs):
-        # Вызываем проверку на кратность
         self.clean()
         super().save(*args, **kwargs)
-        # После сохранения создаем расписание
         self.generate_schedule()
 
     def generate_schedule(self):
