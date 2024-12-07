@@ -10,9 +10,6 @@ def index(request):
 
 
 def equipment_type(request, type):
-    """
-    Отображает список оборудования указанного типа.
-    """
     equipment_list = Equipment.objects.filter(type=type)
     return render(request, 
                   'equipment/equipment_type.html', 
