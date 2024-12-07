@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule{{ equipment.name }}{% endblock %}
+
+{% block content %}
+<h1>Расписание обслуживания для: {{ equipment.name }}</h1>
+<h3>Тип: {{ equipment.type }}</h3>
+<h3>Модель: {{ equipment.model }}</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Дата</th>
+            <th>Тип обслуживания</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in schedule %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.date }}</td>
+            <td>{{ item.maintenance_type }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">Расписание обслуживания для данного оборудования пока не доступно.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'equipment:index' %}" class="btn btn-secondary">Назад к списку оборудования</a>
+{% endblock %}
