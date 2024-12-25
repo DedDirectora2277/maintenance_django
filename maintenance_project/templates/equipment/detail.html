@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}
+  {{ equipment.name }} | {{ equipment.equipment_type.name }} | {{ equipment.installation_date|date:"d E Y" }}
+{% endblock %}
+{% block content %}
+  <div class="col d-flex justify-content-center">
+    <div class="card" style="width: 40rem;">
+      <div class="card-body">
+        {% if equipment.image %}
+          <a href="{{ equipment.image.url }}" target="_blank">
+            <img class="border-3 rounded img-fluid img-thumbnail mb-2 mx-auto d-block" src="{{ equipment.image.url }}" style="max-height: 300px; object-fit: contain;">
+          </a>
+        {% endif %}
+        <h5 class="card-title">{{ equipment.name }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          <small>
+            {% if not equipment.is_displayed %}
+              <p class="text-danger">Оборудование снято с отображения</p>
+            {% elif not equipment.equipment_type.is_displayed %}
+              <p class="text-danger">Выбранный тип оборудования снят с отображения</p>
+            {% endif %}
+            {{ equipment.installation_date|date:"d E Y" }} <br>
+            Серийный номер: {{ equipment.serial_number }} <br>
+            Инвентарный номер: {{ equipment.inventory_number }}
+          </small>
+        </h6>
+        <p class="card-text">
+          <b>Тип:</b> <a href="{% url 'equipment:equipment_type' equipment.equipment_type.slug %}">{{ equipment.equipment_type.name }}</a><br>
+          <b>Модель:</b> {{ equipment.model }} <br>
+          <b>Производитель:</b> {{ equipment.manufacturer }} <br>
+          {% if equipment.description %}
+            <b>Описание:</b> <br> {{ equipment.description }}
+          {% endif %}
+        </p>
+        <a href="{% url 'equipment:index' %}" class="btn btn-primary">Назад к списку</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

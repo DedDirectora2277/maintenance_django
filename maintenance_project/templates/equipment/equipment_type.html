@@ -1,16 +1,14 @@
 {% extends "base.html" %}
-
+{% block title %}
+  Тип оборудования {{ equipment_type.name }}
+{% endblock %}
 {% block content %}
-<h1>Оборудование типа: {{ equipment_type }}</h1>
-<ul>
-    {% for equipment in equipment_list %}
-        <li>
-            {{ equipment.name }} ({{ equipment.model }}) 
-            - <a href="{% url 'equipment:equipment_schedule' equipment.id %}">Посмотреть расписание</a>
-        </li>
-    {% empty %}
-        <li>Нет оборудования данного типа.</li>
-    {% endfor %}
-</ul>
-<a class="btn btn-secondary" href="{% url 'equipment:index' %}">Назад к списку оборудования</a>
+  <h1 class="text-center">Тип оборудования - {{ equipment_type.name }}</h1>
+  <p class="col-6 offset-3 mb-5 lead text-center">{{ equipment_type.description }}</p>
+  {% for equipment in page_obj %}
+    <article class="mb-5">  
+      {% include "includes/equipment_card.html" %}
+    </article>   
+  {% endfor %}
+  {% include "includes/paginator.html" %}
 {% endblock %}
