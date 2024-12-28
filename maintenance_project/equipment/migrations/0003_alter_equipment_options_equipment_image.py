@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
         ('equipment', '0002_equipmenttype_equipment_is_displayed_and_more'),
     ]
 
-    operations = [
+    operations = [ 
         migrations.AlterModelOptions(
             name='equipment',
             options={'ordering': ['-installation_date'], 'verbose_name': 'Оборудование', 'verbose_name_plural': 'Оборудование'},

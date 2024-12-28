@@ -182,7 +182,6 @@ def generate_schedule(equipment, start_date=None, end_date=None):
     if end_date is None:
         end_date = start_date + timedelta(days=365)
     
-    # Удалим уже созданные записи, чтобы не было конфликтов
     MaintenanceSchedule.objects.filter(
         equipment=equipment,
         planned_date__gte=start_date,

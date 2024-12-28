@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='maintenanceschedule',
+            model_name='maintenanceschedule', 
             name='maintenance_type',
             field=models.CharField(choices=[('to', 'ТО'), ('tr', 'ТР'), ('kr', 'КР')], max_length=2, verbose_name='Тип обслуживания'),
         ),

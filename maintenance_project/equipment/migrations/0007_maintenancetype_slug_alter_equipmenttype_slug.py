@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.SlugField(default=django.utils.timezone.now, help_text='Идентификатор страницы для URL; разрешены символы латиницы, цифры, дефис и подчёркивание.', max_length=255, unique=True, verbose_name='Слаг'),
             preserve_default=False,
         ),
-        migrations.AlterField(
+        migrations.AlterField( 
             model_name='equipmenttype',
             name='slug',
             field=models.SlugField(help_text='Идентификатор страницы для URL; разрешены символы латиницы, цифры, дефис и подчёркивание.', max_length=255, unique=True, verbose_name='Слаг'),

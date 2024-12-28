@@ -13,7 +13,7 @@
               <p class="text-danger">Оборудование снято с отображения</p>
             {% elif not equipment.equipment_type.is_displayed %}
               <p class="text-danger">Выбранный тип оборудования снят с отображения</p>
-            {% endif %}
+            {% endif %} 
             {{ equipment.installation_date|date:"d E Y" }} <br>
             Серийный номер: {{ equipment.serial_number }} <br>
             Инвентарный номер: {{ equipment.inventory_number }}

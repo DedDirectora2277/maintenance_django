@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 
 class GenerateScheduleForm(forms.Form):
-    end_date = forms.DateField(
+    end_date = forms.DateField( 
         label="Дата окончания",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         input_formats=['%Y-%m-%d']

@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('equipment', '0001_initial'),
     ]
-
+ 
     operations = [
         migrations.CreateModel(
             name='EquipmentType',

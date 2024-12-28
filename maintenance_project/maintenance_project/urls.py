@@ -21,7 +21,7 @@ from django.urls import include, path
 
 from equipment import views
 
-
+ 
 urlpatterns = [
     path('', include('equipment.urls')),
     path('pages/', include('pages.urls')),

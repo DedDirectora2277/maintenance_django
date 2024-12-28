@@ -16,3 +16,4 @@ class Migration(migrations.Migration):
             field=models.SlugField(blank=True, max_length=255, unique=True, verbose_name='Слаг'),
         ),
     ]
+ 

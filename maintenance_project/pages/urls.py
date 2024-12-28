@@ -8,3 +8,4 @@ app_name = 'pages'
 urlpatterns = [
     path('about/', views.about, name='about'),
 ]
+ 

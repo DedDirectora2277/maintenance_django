@@ -8,7 +8,7 @@ class EquipmentMaintenanceInline(admin.StackedInline):
     verbose_name_plural = 'Периодичности обслуживания'
 
 
-@admin.register(Equipment)
+@admin.register(Equipment) 
 class EquipmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'equipment_type', 'model', 'manufacturer', 'get_to_periodicity', 'get_tr_periodicity', 'get_kr_periodicity')
     inlines = [EquipmentMaintenanceInline]

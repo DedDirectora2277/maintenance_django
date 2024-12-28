@@ -13,6 +13,6 @@ urlpatterns = [
           views.EquipmentTypeListView.as_view(),
           name='equipment_type'),
     path('equipment/<int:equipment_id>',
-         views.EquipmentDetailView.as_view(),
+         views.EquipmentDetailView.as_view(), 
          name='equipment_detail')
 ]

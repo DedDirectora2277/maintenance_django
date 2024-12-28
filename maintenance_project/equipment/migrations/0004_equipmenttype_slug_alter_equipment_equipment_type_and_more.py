@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
         ('equipment', '0003_alter_equipment_options_equipment_image'),
     ]
 
-    operations = [
+    operations = [ 
         migrations.AddField(
             model_name='equipmenttype',
             name='slug',

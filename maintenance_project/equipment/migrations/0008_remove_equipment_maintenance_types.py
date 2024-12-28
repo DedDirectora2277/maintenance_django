@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='equipment',
-            name='maintenance_types',
+            name='maintenance_types', 
         ),
     ]

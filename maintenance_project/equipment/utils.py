@@ -27,7 +27,7 @@ def generate_schedule(equipment):
             ))
 
     # Возвращаем список созданных объектов
-    return schedule
+    return schedule 
 
 
 def filter_equipment(equipments):

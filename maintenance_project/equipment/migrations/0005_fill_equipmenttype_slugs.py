@@ -13,7 +13,7 @@ def fill_unique_slugs(apps, schema_editor):
         while EquipmentType.objects.using(db_alias).filter(slug=slug).exists():
             slug = f"{base_slug}-{counter}"
             counter += 1
-        item.slug = slug
+        item.slug = slug 
         item.save()
 
 class Migration(migrations.Migration):

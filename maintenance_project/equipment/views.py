@@ -190,7 +190,7 @@ class EquipmentDetailView(DetailView):
 class RegisterView(CreateView):
     template_name = 'registration/registration_form.html'
     form_class = UserCreationForm
-    success_url = reverse_lazy('equipment:index')
+    success_url = reverse_lazy('equipment:index') 
 
 
 class ProfileView(DetailView):
