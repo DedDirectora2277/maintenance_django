@@ -1,53 +1,38 @@
 from django.contrib import admin
-from .models import (
-    Equipment, MaintenanceType,
-    EquipmentMaintenanceType, MaintenanceSchedule,
-    EquipmentType,
-)
+from .models import (Equipment, EquipmentType, EquipmentMaintenance, MaintenanceSchedule)
 
 
-class EquipmentMaintenanceTypeInline(admin.TabularInline):
-    model = EquipmentMaintenanceType
-    extra = 0
-
-
-@admin.register(EquipmentType)
-class EquipmentTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_displayed', 'slug')
-    list_filter = ('is_displayed',)
-    list_editable = ('is_displayed', 'slug')
-    search_fields = ('name', 'slug')
+class EquipmentMaintenanceInline(admin.StackedInline):
+    model = EquipmentMaintenance
+    can_delete = False
+    verbose_name_plural = 'Периодичности обслуживания'
 
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    inlines = [EquipmentMaintenanceTypeInline]
-    list_display = (
-        'name', 'model', 'manufacturer', 'serial_number',
-        'inventory_number', 'installation_date', 'get_maintenance_types',
-        'is_displayed',
-    )
-    search_fields = (
-        'name', 'model', 'manufacturer', 'serial_number', 'inventory_number'
-    )
-    list_editable = ('is_displayed',)
+    list_display = ('name', 'equipment_type', 'model', 'manufacturer', 'get_to_periodicity', 'get_tr_periodicity', 'get_kr_periodicity')
+    inlines = [EquipmentMaintenanceInline]
 
-    def get_maintenance_types(self, obj):
-        return ", ".join([mt.name for mt in obj.maintenance_types.all()])
-    get_maintenance_types.short_description = 'Типы обслуживания'
+    def get_to_periodicity(self, obj):
+        return obj.maintenance.to_periodicity if hasattr(obj, 'maintenance') else None
+    get_to_periodicity.short_description = 'ТО (дни)'
+
+    def get_tr_periodicity(self, obj):
+        return obj.maintenance.tr_periodicity if hasattr(obj, 'maintenance') and obj.maintenance.tr_periodicity else None
+    get_tr_periodicity.short_description = 'ТР (дни)'
+
+    def get_kr_periodicity(self, obj):
+        return obj.maintenance.kr_periodicity if hasattr(obj, 'maintenance') and obj.maintenance.kr_periodicity else None
+    get_kr_periodicity.short_description = 'КР (дни)'
 
 
-@admin.register(MaintenanceType)
-class MaintenanceTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'periodicity')
-    search_fields = ('name',)
+@admin.register(EquipmentType)
+class EquipmentTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'is_displayed')
 
 
 @admin.register(MaintenanceSchedule)
 class MaintenanceScheduleAdmin(admin.ModelAdmin):
-    list_display = (
-        'equipment', 'maintenance_type', 'planned_date',
-        'actual_date', 'status'
-    )
-    list_filter = ('status', 'maintenance_type', 'planned_date')
-    search_fields = ('equipment__name', 'notes')
+    list_display = ('equipment', 'maintenance_type', 'planned_date', 'actual_date', 'status', 'notes')
+    list_filter = ('equipment', 'maintenance_type', 'status')
+    list_editable = ('status', 'notes', 'actual_date')

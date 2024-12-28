@@ -32,7 +32,125 @@
             <b>Описание:</b> <br> {{ equipment.description }}
           {% endif %}
         </p>
-        <a href="{% url 'equipment:index' %}" class="btn btn-primary">Назад к списку</a>
+
+        <!-- Периодичность видов работ -->
+        <h4 class="mt-5">Периодичность видов работ</h4>
+        {% if equipment_maintenance %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Вид работы</th>
+                    <th>Периодичность (дни)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if equipment_maintenance.to_periodicity %}
+                <tr>
+                    <td>ТО</td>
+                    <td>{{ equipment_maintenance.to_periodicity }}</td>
+                </tr>
+                {% endif %}
+                {% if equipment_maintenance.tr_periodicity %}
+                <tr>
+                    <td>ТР</td>
+                    <td>{{ equipment_maintenance.tr_periodicity }}</td>
+                </tr>
+                {% endif %}
+                {% if equipment_maintenance.kr_periodicity %}
+                <tr>
+                    <td>КР</td>
+                    <td>{{ equipment_maintenance.kr_periodicity }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Информация о периодичности обслуживания отсутствует.</p>
+        {% endif %}
+
+        <!-- Форма для генерации расписания (только для авторизованных) -->
+        {% if user.is_authenticated %}
+          <form method="post" action="">
+              {% csrf_token %}
+              <div class="input-group mb-3">
+                  {{ form.end_date }}
+                  <button class="btn btn-outline-secondary" type="submit" name="generate_schedule">Создать график</button>
+              </div>
+              {% if form.end_date.errors %}
+                  <div class="alert alert-danger">
+                      {{ form.end_date.errors }}
+                  </div>
+              {% endif %}
+          </form>
+        {% endif %}
+
+        <!-- Сообщения -->
+        {% if messages %}
+            <div class="mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Навигация по месяцам -->
+        <div class="mt-4">
+            <a href="{{ prev_month_url }}" class="btn btn-outline-secondary btn-sm">← Предыдущий месяц</a>
+            <span class="mx-2">{{ month_name }} {{ current_year }}</span>
+            <a href="{{ next_month_url }}" class="btn btn-outline-secondary btn-sm">Следующий месяц →</a>
+        </div>
+
+        <!-- Календарь -->
+        <table class="table table-bordered mt-2">
+            <thead>
+                <tr>
+                    <th class="text-center">Пн</th>
+                    <th class="text-center">Вт</th>
+                    <th class="text-center">Ср</th>
+                    <th class="text-center">Чт</th>
+                    <th class="text-center">Пт</th>
+                    <th class="text-center">Сб</th>
+                    <th class="text-center">Вс</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in calendar_data %}
+                    <tr>
+                        {% for day_data in week %}
+                            <td class="text-center {% if day_data.is_today %}table-warning{% endif %} {% if day_data.is_weekend %}table-secondary{% endif %}">
+                                {% if day_data.day %}
+                                    {{ day_data.day }}
+                                    {% if day_data.items %}
+                                    <ul class="list-unstyled mt-1">
+                                        {% for item in day_data.items %}
+                                            <li class="small">
+                                                <span class="badge {% if item.status == 'completed' %}bg-success{% elif item.status == 'overdue' %}bg-danger{% else %}bg-primary{% endif %}">
+                                                    {{ item.get_maintenance_type_display }}
+                                                </span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Таблица с расписанием -->
+        {% comment %} <form method="post" action="{% url 'equipment:update_schedule_item' 0 %}"> {% endcomment %}
+            {% comment %} {% csrf_token %} {% endcomment %}
+            <div id="schedule-table-container">
+              {% include 'includes/schedule_table.html' %}
+            </div>
+        {% comment %} <button type="submit" class="btn btn-primary mt-2">Сохранить изменения</button> {% endcomment %}
+        {% comment %} </form> {% endcomment %}
+
+        <a href="{% url 'equipment:index' %}" class="btn btn-primary mt-2">Назад к списку</a>
       </div>
     </div>
   </div>

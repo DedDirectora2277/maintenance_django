@@ -1,0 +1,50 @@
+<h2 class="mt-4 {% if not schedule %}visually-hidden{% endif %}">График обслуживания</h2>
+<table class="table table-striped mt-2 {% if not schedule %}visually-hidden{% endif %}">
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Тип обслуживания</th>
+            <th>Статус</th>
+            <th>Заметки</th>
+            <th>Фактическая дата</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in schedule %}
+        <tr>
+            <td>{{ item.planned_date }}</td>
+            <td>{{ item.get_maintenance_type_display }}</td>
+            {% comment %} <td>
+                <form method="post" action="{% url 'equipment:update_schedule_item' item.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <select class="form-select-sm status-select" name="status" data-item-id="{{ item.id }}" id="status-select-{{ item.id }}">
+                        {% for value, label in item.STATUS_CHOICES %}
+                            <option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-secondary">Сохранить</button>
+                </form>
+            </td> {% endcomment %}
+            {% comment %} <td>
+                <form method="post" action="{% url 'equipment:update_schedule_item' item.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <input type="text" class="form-control-sm notes-input" name="notes" value="{{ item.notes|default:'' }}" data-item-id="{{ item.id }}" id="notes-{{ item.id }}">
+                    <button type="submit" class="btn btn-sm btn-secondary">Сохранить</button>
+                </form>
+            </td> {% endcomment %}
+            <td>
+                {% if item.actual_date %}
+                    {{ item.actual_date|date:"d.m.Y" }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not schedule %}
+<p class="mt-3">На данный месяц нет запланированных работ.</p>
+{% endif %}
