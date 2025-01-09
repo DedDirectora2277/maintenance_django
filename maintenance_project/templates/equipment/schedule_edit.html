@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование обслуживания{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>Редактирование обслуживания для {{ equipment.name }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.maintenance_type.label_tag }}<br>
+    {{ form.maintenance_type }}<br>
+    {{ form.planned_date.label_tag }}<br>
+    {{ form.planned_date }}<br>
+    {{ form.actual_date.label_tag }}<br>
+    {{ form.actual_date }}<br>
+    {{ form.status.label_tag }}<br>
+    {{ form.status }}<br>
+    {{ form.notes.label_tag }}<br>
+    {{ form.notes }}<br>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a href="{% url 'equipment:equipment_detail' equipment.pk %}" class="btn btn-secondary">Отмена</a>
+  </form>
+</div>
+{% endblock %}

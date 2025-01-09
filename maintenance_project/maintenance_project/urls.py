@@ -30,3 +30,7 @@ urlpatterns = [
     path('auth/', include('django.contrib.auth.urls')),
     path('registration/', views.RegisterView.as_view(), name='registration'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+handler404 = 'pages.views.page_not_found'
+handler500 = 'pages.views.page_internal_server_error'

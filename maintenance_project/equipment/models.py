@@ -1,4 +1,5 @@
 from datetime import timedelta
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
@@ -6,23 +7,29 @@ from django.utils import timezone
 
 
 class Displayable(models.Model):
-    is_displayed = models.BooleanField(default=True,
-                                       verbose_name="Отображать на сайте")
-    description = models.TextField(blank=True,
-                                   verbose_name="Описание")
+    is_displayed = models.BooleanField(
+        default=True, verbose_name="Отображать на сайте"
+    )
+    description = models.TextField(blank=True, verbose_name="Описание")
 
     class Meta:
         abstract = True
 
 
 class EquipmentType(Displayable):
-    name = models.CharField(max_length=255, unique=True,
-                            verbose_name="Название типа оборудования")
-    slug = models.SlugField(max_length=255, unique=True,
-                            verbose_name="Слаг",
-                            help_text=('Идентификатор страницы для URL; '
-                                       'разрешены символы латиницы, цифры, '
-                                       'дефис и подчёркивание.'))
+    name = models.CharField(
+        max_length=255, unique=True, verbose_name="Название типа оборудования"
+    )
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        verbose_name="Слаг",
+        help_text=(
+            "Идентификатор страницы для URL; "
+            "разрешены символы латиницы, цифры, "
+            "дефис и подчёркивание."
+        ),
+    )
 
     def __str__(self):
         return self.name
@@ -38,27 +45,28 @@ class EquipmentType(Displayable):
 
 
 class Equipment(Displayable):
-    equipment_type = models.ForeignKey(EquipmentType,
-                                       on_delete=models.SET_NULL,
-                                       null=True,
-                                       blank=True,
-                                       verbose_name="Тип оборудования",
-                                       related_name="equipments")
+    equipment_type = models.ForeignKey(
+        EquipmentType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Тип оборудования",
+        related_name="equipments",
+    )
     name = models.CharField(max_length=255, verbose_name="Название")
     model = models.CharField(max_length=255, verbose_name="Модель")
-    manufacturer = models.CharField(max_length=255,
-                                    verbose_name="Производитель")
-    serial_number = models.CharField(max_length=255,
-                                     verbose_name="Серийный номер")
-    inventory_number = models.CharField(max_length=255,
-                                        verbose_name="Инвентарный номер")
-    installation_date = models.DateField(
-        verbose_name="Дата ввода в эксплуатацию"
+    manufacturer = models.CharField(max_length=255, verbose_name="Производитель")
+    serial_number = models.CharField(max_length=255, verbose_name="Серийный номер")
+    inventory_number = models.CharField(
+        max_length=255, verbose_name="Инвентарный номер"
     )
-    image = models.ImageField(upload_to='equipment_images/',
-                              verbose_name="Изображение",
-                              null=True,
-                              blank=True)
+    installation_date = models.DateField(verbose_name="Дата ввода в эксплуатацию")
+    image = models.ImageField(
+        upload_to="equipment_images/",
+        verbose_name="Изображение",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
@@ -68,34 +76,46 @@ class Equipment(Displayable):
         verbose_name_plural = "Оборудование"
         ordering = ["-installation_date"]
 
-    def get_maintenance_types(self):
+    def get_maintenance_types(self, maintenance=None):
+        """
+        Возвращает типы обслуживания для оборудования.
+        maintenance: Опциональный объект EquipmentMaintenance,
+                     чтобы избежать повторного запроса к БД.
+        """
         maintenance_types = []
-        if self.to_periodicity:
-            maintenance_types.append(f"ТО ({self.to_periodicity} дн.)")
-        if self.tr_periodicity:
-            maintenance_types.append(f"ТР ({self.tr_periodicity} дн.)")
-        if self.kr_periodicity:
-            maintenance_types.append(f"КР ({self.kr_periodicity} дн.)")
+        if maintenance:
+            if maintenance.to_periodicity:
+                maintenance_types.append(f"ТО ({maintenance.to_periodicity} дн.)")
+            if maintenance.tr_periodicity:
+                maintenance_types.append(f"ТР ({maintenance.tr_periodicity} дн.)")
+            if maintenance.kr_periodicity:
+                maintenance_types.append(f"КР ({maintenance.kr_periodicity} дн.)")
+        elif hasattr(self, 'maintenance'):
+            if self.maintenance.to_periodicity:
+                maintenance_types.append(f"ТО ({self.maintenance.to_periodicity} дн.)")
+            if self.maintenance.tr_periodicity:
+                maintenance_types.append(f"ТР ({self.maintenance.tr_periodicity} дн.)")
+            if self.maintenance.kr_periodicity:
+                maintenance_types.append(f"КР ({self.maintenance.kr_periodicity} дн.)")
 
         return ", ".join(maintenance_types)
-    get_maintenance_types.short_description = 'Типы обслуживания'
+
+    get_maintenance_types.short_description = "Типы обслуживания"
 
 
 class EquipmentMaintenance(models.Model):
-    equipment = models.OneToOneField(Equipment,
-                                   on_delete=models.CASCADE,
-                                   verbose_name="Оборудование",
-                                   related_name="maintenance")
-    to_periodicity = models.IntegerField(
-        verbose_name="Периодичность ТО (дни)"
+    equipment = models.OneToOneField(
+        Equipment,
+        on_delete=models.CASCADE,
+        verbose_name="Оборудование",
+        related_name="maintenance",
     )
+    to_periodicity = models.IntegerField(verbose_name="Периодичность ТО (дни)")
     tr_periodicity = models.IntegerField(
-        null=True, blank=True,
-        verbose_name="Периодичность ТР (дни)"
+        null=True, blank=True, verbose_name="Периодичность ТР (дни)"
     )
     kr_periodicity = models.IntegerField(
-        null=True, blank=True,
-        verbose_name="Периодичность КР (дни)"
+        null=True, blank=True, verbose_name="Периодичность КР (дни)"
     )
 
     def __str__(self):
@@ -115,8 +135,10 @@ class EquipmentMaintenance(models.Model):
                     "Для задания периодичности 'КР' необходимо указать "
                     "периодичность 'ТР'."
                 )
-            if (self.kr_periodicity % self.to_periodicity != 0
-                    or self.kr_periodicity % self.tr_periodicity != 0):
+            if (
+                self.kr_periodicity % self.to_periodicity != 0
+                or self.kr_periodicity % self.tr_periodicity != 0
+            ):
                 raise ValidationError(
                     "Периодичность 'КР' должна быть кратна периодичности "
                     f"ТО ({self.to_periodicity} дн.) и ТР ({self.tr_periodicity} дн.)."
@@ -131,38 +153,54 @@ class EquipmentMaintenance(models.Model):
         verbose_name_plural = "Периодичности обслуживания оборудования"
 
 
+class MaintenanceScheduleManager(models.Manager):
+    def update_overdue_status(self):
+        today = timezone.now().date()
+        overdue_status = MaintenanceSchedule.STATUS_CHOICES[2][0]
+        self.filter(planned_date__lt=today, status="Запланировано").update(
+            status=overdue_status
+        )
+
+
 class MaintenanceSchedule(models.Model):
     MAINTENANCE_TYPE_CHOICES = (
-        ('to', 'ТО'),
-        ('tr', 'ТР'),
-        ('kr', 'КР'),
+        ("to", "ТО"),
+        ("tr", "ТР"),
+        ("kr", "КР"),
     )
 
     STATUS_CHOICES = (
-        ('scheduled', 'Запланировано'),
-        ('completed', 'Выполнено'),
-        ('overdue', 'Просрочено'),
+        ("Запланировано", "Запланировано"),
+        ("Выполнено", "Выполнено"),
+        ("Просрочено", "Просрочено"),
     )
-    equipment = models.ForeignKey(Equipment,
-                                  on_delete=models.CASCADE,
-                                  verbose_name="Оборудование",
-                                  related_name="maintenance_schedules")
-    maintenance_type = models.CharField(max_length=2,
-                                        choices=MAINTENANCE_TYPE_CHOICES,
-                                        verbose_name="Тип обслуживания")
+    objects = MaintenanceScheduleManager()
+    equipment = models.ForeignKey(
+        Equipment,
+        on_delete=models.CASCADE,
+        verbose_name="Оборудование",
+        related_name="maintenance_schedules",
+    )
+    maintenance_type = models.CharField(
+        max_length=2, choices=MAINTENANCE_TYPE_CHOICES, verbose_name="Тип обслуживания"
+    )
     planned_date = models.DateField(verbose_name="Запланированная дата")
-    actual_date = models.DateField(null=True,
-                                   blank=True,
-                                   verbose_name="Фактическая дата")
-    status = models.CharField(max_length=20,
-                              choices=STATUS_CHOICES,
-                              default='scheduled',
-                              verbose_name="Статус")
+    actual_date = models.DateField(
+        null=True, blank=True, verbose_name="Фактическая дата"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="scheduled",
+        verbose_name="Статус",
+    )
     notes = models.TextField(blank=True, verbose_name="Заметки")
 
     def __str__(self):
-        return (f"{self.equipment.name} - {self.get_maintenance_type_display()} -"
-                f" {self.planned_date}")
+        return (
+            f"{self.equipment.name} - {self.get_maintenance_type_display()} -"
+            f" {self.planned_date}"
+        )
 
     class Meta:
         verbose_name = "График обслуживания"
@@ -173,7 +211,7 @@ def generate_schedule(equipment, start_date=None, end_date=None):
     """
     Функция для создания записей в графике обслуживания.
     """
-    if not hasattr(equipment, 'maintenance'):
+    if not hasattr(equipment, "maintenance"):
         return
 
     if start_date is None:
@@ -181,27 +219,26 @@ def generate_schedule(equipment, start_date=None, end_date=None):
 
     if end_date is None:
         end_date = start_date + timedelta(days=365)
-    
+
     MaintenanceSchedule.objects.filter(
-        equipment=equipment,
-        planned_date__gte=start_date,
-        planned_date__lte=end_date
+        equipment=equipment, planned_date__gte=start_date, planned_date__lte=end_date
     ).delete()
 
     periodicity_map = {
-        'to': equipment.maintenance.to_periodicity,
-        'tr': equipment.maintenance.tr_periodicity,
-        'kr': equipment.maintenance.kr_periodicity
+        "to": equipment.maintenance.to_periodicity,
+        "tr": equipment.maintenance.tr_periodicity,
+        "kr": equipment.maintenance.kr_periodicity,
     }
 
     for maintenance_type, periodicity in periodicity_map.items():
         if periodicity:
             current_date = start_date
             while current_date <= end_date:
+                scheduled_status = MaintenanceSchedule.STATUS_CHOICES[0][0]
                 MaintenanceSchedule.objects.create(
                     equipment=equipment,
                     maintenance_type=maintenance_type,
                     planned_date=current_date,
-                    status='scheduled'
+                    status=scheduled_status,
                 )
                 current_date += timedelta(days=periodicity)

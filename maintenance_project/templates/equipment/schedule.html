@@ -1,33 +1,54 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Schedule{{ equipment.name }}{% endblock %}
+{% block title %}План обслуживания{% endblock %}
 
 {% block content %}
-<h1>Расписание обслуживания для: {{ equipment.name }}</h1>
-<h3>Тип: {{ equipment.type }}</h3>
-<h3>Модель: {{ equipment.model }}</h3>
+<div class="container mt-4">
+  <h1 class="mb-4">План обслуживания на {{ month_name }} {{ current_year }}</h1>
+  <div class="d-flex justify-content-between mb-3">
+    <a href="{{ prev_month_url }}" class="btn btn-outline-secondary">← Предыдущий месяц</a>
+    <a href="{{ next_month_url }}" class="btn btn-outline-secondary">Следующий месяц →</a>
+  </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Дата</th>
-            <th>Тип обслуживания</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in schedule %} 
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ item.date }}</td>
-            <td>{{ item.maintenance_type }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3">Расписание обслуживания для данного оборудования пока не доступно.</td>
-        </tr>
+  {% if schedule %}
+  <ul class="list-group">
+    {% for item in schedule %}
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          {{ item.planned_date|date:"d.m.Y" }} - {{ item.equipment.name }} ({{ item.equipment.equipment_type.name }}) - {{ item.get_maintenance_type_display }} - <span class="{% if item.status == 'Выполнено' %}text-success{% elif item.status == 'Запланировано' %}text-primary{% elif item.status == 'Просрочено' %}text-danger{% endif %}">{{ item.status }}</span>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'equipment:maintenance_edit' item.pk %}?year={{ current_year }}&month={{ current_month }}&page={{ page_obj.number }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>На этот месяц нет запланированных мероприятий.</p>
+  {% endif %}
+
+  {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-3">
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&year={{ current_year }}&month={{ current_month }}">Пред.</a></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}&year={{ current_year }}&month={{ current_month }}">{{ num }}</a></li>
+          {% endif %}
         {% endfor %}
-    </tbody>
-</table>
-<a href="{% url 'equipment:index' %}" class="btn btn-secondary">Назад к списку оборудования</a>
+
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&year={{ current_year }}&month={{ current_month }}">След.</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
 {% endblock %}
